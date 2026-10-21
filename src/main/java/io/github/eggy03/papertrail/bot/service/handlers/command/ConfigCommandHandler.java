@@ -2,6 +2,7 @@ package io.github.eggy03.papertrail.bot.service.handlers.command;
 
 import io.github.eggy03.papertrail.bot.client.api.GuildApi;
 import io.github.eggy03.papertrail.bot.client.exception.ApiException;
+import io.github.eggy03.papertrail.bot.client.model.ApiError;
 import io.github.eggy03.papertrail.bot.client.model.GuildDTO;
 import io.github.eggy03.papertrail.bot.environment.PaperTrailEnvironment;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -60,7 +61,14 @@ public final class ConfigCommandHandler {
             eb.addField(MarkdownUtil.underline("Setup Success"), MarkdownUtil.codeblock("Events will be logged in your set channels"), false);
         } catch (ApiException e) {
             eb.setColor(environment.embedColor().warningColor());
-            eb.addField(MarkdownUtil.underline("Setup Failure"), MarkdownUtil.codeblock(e.getError().message()), false);
+
+            ApiError apiError = e.getError();
+            if (apiError.status() == 409) {
+                eb.addField(MarkdownUtil.underline("Setup Warning"), MarkdownUtil.codeblock("A configuration already exists for this guild."), false);
+            } else {
+                eb.addField(MarkdownUtil.underline("Setup Failure"), MarkdownUtil.codeblock(apiError.message()), false);
+            }
+
         }
 
         event.getHook().editOriginalEmbeds(eb.build()).queue();
@@ -104,7 +112,13 @@ public final class ConfigCommandHandler {
             eb.addField(MarkdownUtil.underline("Message Event Channel"), messageEventChannelJumpUrl, false);
         } catch (ApiException e) {
             eb.setColor(environment.embedColor().warningColor());
-            eb.addField(MarkdownUtil.underline("Warning"), MarkdownUtil.codeblock(e.getError().message()), false);
+
+            ApiError apiError = e.getError();
+            if (apiError.status() == 404) {
+                eb.addField(MarkdownUtil.underline("View Warning"), MarkdownUtil.codeblock("No configuration is registered for this guild."), false);
+            } else {
+                eb.addField(MarkdownUtil.underline("View Failure"), MarkdownUtil.codeblock(apiError.message()), false);
+            }
         }
 
         event.getHook().editOriginalEmbeds(eb.build()).queue();
@@ -139,10 +153,14 @@ public final class ConfigCommandHandler {
                 eb.addField(MarkdownUtil.underline("Deletion Success"), MarkdownUtil.codeblock("Configuration Deleted"), false);
             } catch (ApiException e) {
                 eb.setColor(environment.embedColor().warningColor());
-                eb.addField(MarkdownUtil.underline("Deletion Failure"), MarkdownUtil.codeblock(e.getError().message()), false);
-            }
 
-            event.getHook().editOriginalEmbeds(eb.build()).queue();
+                ApiError apiError = e.getError();
+                if (apiError.status() == 404) {
+                    eb.addField(MarkdownUtil.underline("Deletion Warning"), MarkdownUtil.codeblock("No configuration is registered for this guild."), false);
+                } else {
+                    eb.addField(MarkdownUtil.underline("Deletion Failure"), MarkdownUtil.codeblock(e.getError().message()), false);
+                }
+            }
         } else {
             // else update guild
             Long guildEventChannelId = guildEventChannelOption == null ? null : guildEventChannelOption.getAsChannel().getIdLong();
@@ -157,7 +175,14 @@ public final class ConfigCommandHandler {
                 eb.addField(MarkdownUtil.underline("Update Success"), MarkdownUtil.codeblock("Configuration Has Been Updated"), false);
             } catch (ApiException e) {
                 eb.setColor(environment.embedColor().warningColor());
-                eb.addField(MarkdownUtil.underline("Update Failure"), MarkdownUtil.codeblock(e.getError().message()), false);
+
+                ApiError apiError = e.getError();
+                if (apiError.status() == 404) {
+                    eb.addField(MarkdownUtil.underline("Update Warning"), MarkdownUtil.codeblock("No configuration is registered for this guild."), false);
+                } else {
+                    eb.addField(MarkdownUtil.underline("Update Failure"), MarkdownUtil.codeblock(e.getError().message()), false);
+                }
+
             }
         }
 
