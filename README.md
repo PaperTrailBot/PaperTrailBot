@@ -31,11 +31,11 @@ Integrations, Webhooks, Moderation Action, Unusual DMs, Raids and Unknown events
 
 # Repositories
 
-| Repository                                                                 | Description                                                  |
-|----------------------------------------------------------------------------|--------------------------------------------------------------|
-| [PaperTrailBot](https://github.com/eggy03/PaperTrailBot)                   | Core bot application                                         |
-| [PaperTrail HTTP Client](https://github.com/eggy03/PaperTrail-HTTP-Client) | Synchronous Java client library for interacting with the API |
-| [PaperTrail API](https://github.com/eggy03/PaperTrail-API-Quarkus)         | API used by the bot to store server config                   |
+| Repository                                                                        | Description                                                  |
+|-----------------------------------------------------------------------------------|--------------------------------------------------------------|
+| [PaperTrailBot](https://github.com/papertrailbot/PaperTrailBot)                   | Core bot application                                         |
+| [PaperTrail HTTP Client](https://github.com/papertrailbot/PaperTrail-HTTP-Client) | Synchronous Java client library for interacting with the API |
+| [PaperTrail API](https://github.com/papertrailbot/PaperTrail-API-Quarkus)         | API used by the bot to store server config                   |
 
 > [!IMPORTANT]
 > I've considered putting the project in maintenance mode since I believe it's mostly feature complete.

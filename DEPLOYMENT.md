@@ -62,7 +62,7 @@ networks:
 services:
   api:
     container_name: papertrail-api
-    image: ghcr.io/eggy03/papertrail-api-native:latest
+    image: ghcr.io/papertrailbot/api-native:latest
     environment:
       DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
@@ -78,7 +78,7 @@ services:
 
   bot:
     container_name: papertrail-bot
-    image: ghcr.io/eggy03/papertrail-bot-native:latest
+    image: ghcr.io/papertrailbot/bot-native:latest
     depends_on:
       api:
         condition: service_healthy
@@ -104,16 +104,16 @@ The following environment variables have defaults, but you can change them to al
 
 ## Bot
 
-| Environment Variable          | Description                                                | Default Value       | Optional        |
-|-------------------------------|------------------------------------------------------------|---------------------|-----------------|
-| `APP_NAME`                    | Changes the application name used internally.              | `PaperTrailBot`     | Yes             |
-| `APP_ACTIVITY`                | Changes the activity displayed by the bot in Discord.      | `/help              | latest version` | Yes      |
-| `APP_LOG_LEVEL`               | Changes the application log level.                         | `INFO`              | Yes             |
-| `PORT`                        | Changes the port used by the application.                  | `8080`              | Yes             |
-| `MANAGEMENT_PORT`             | Changes the management port used by Quarkus health checks. | `9000`              | Yes             |
-| `EMBED_SUCCESS_COLOR_INT`     | Changes the color of embeds for **creation events**.       | `GREEN (712458)`    | Yes             |
-| `EMBED_WARNING_COLOR_INT`     | Changes the color of embeds for **update events**.         | `YELLOW (16776960)` | Yes             |
-| `EMBED_DESTRUCTIVE_COLOR_INT` | Changes the color of embeds for **deletion events**.       | `RED (16711680)`    | Yes             |
+| Environment Variable          | Description                                                | Default Value            | Optional |
+|-------------------------------|------------------------------------------------------------|--------------------------|----------|
+| `APP_NAME`                    | Changes the application name used internally.              | `PaperTrailBot`          | Yes      |
+| `APP_ACTIVITY`                | Changes the activity displayed by the bot in Discord.      | `/help <latest_version>` | Yes      |
+| `APP_LOG_LEVEL`               | Changes the application log level.                         | `INFO`                   | Yes      |
+| `PORT`                        | Changes the port used by the application.                  | `8080`                   | Yes      |
+| `MANAGEMENT_PORT`             | Changes the management port used by Quarkus health checks. | `9000`                   | Yes      |
+| `EMBED_SUCCESS_COLOR_INT`     | Changes the color of embeds for **creation events**.       | `GREEN (712458)`         | Yes      |
+| `EMBED_WARNING_COLOR_INT`     | Changes the color of embeds for **update events**.         | `YELLOW (16776960)`      | Yes      |
+| `EMBED_DESTRUCTIVE_COLOR_INT` | Changes the color of embeds for **deletion events**.       | `RED (16711680)`         | Yes      |
 
 ## API
 

@@ -4,17 +4,15 @@
 For the official hosted instance of PaperTrail (Discord Application ID: 1381658412550590475),
 [@Egg-03](https://github.com/eggy03) acts as the data controller.
 
-**_Last Updated:_** March 13, 2026
-
 **_Effective From:_** February 27, 2026
+
+**_Last Updated:_** October 21, 2026
 
 The Privacy Policy is a legal agreement between you ("you", "your", "user")
 and the project maintainers of PaperTrail (collectively "we", "us", "PaperTrail").
 
-The [bot](https://github.com/eggy03/PaperTrailBot),
-its related
-APIs, [1](https://github.com/eggy03/PaperTrail-API-Quarkus), [2](https://github.com/eggy03/PaperTrail-API-Spring),
-and its [SDK](https://github.com/eggy03/PaperTrail-SDK)
+The [bot](https://github.com/papertrailbot/PaperTrailBot) and
+its [API](https://github.com/papertrailbot/PaperTrail-API-Quarkus)
 are collectively referred to as the “Service.”
 
 This Privacy Policy describes how the Service collects, uses, stores, and protects information when you use the
@@ -220,7 +218,8 @@ NOTE: We will never ask for any kinds of passwords or secret tokens from you.
 ## Contact
 
 For privacy-related questions or other requests:
-- GitHub: [Submit an issue or discussion](https://github.com/eggy03/PaperTrailBot/issues)
+
+- GitHub: [Submit an issue or discussion](https://github.com/papertrailbot/PaperTrailBot/issues)
 - Email: `eggzerothree@proton.me`
 
 ---
