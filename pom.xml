@@ -112,12 +112,6 @@
             <version>${guava.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.github.eggy03</groupId>
-            <artifactId>papertrail-http-client</artifactId>
-            <version>${papertrail.http.client.version}</version>
-        </dependency>
-
     </dependencies>
 
     <build>

@@ -1,11 +1,12 @@
 package io.github.eggy03.papertrail.bot.service.handlers.guild.auditlog;
 
+import io.github.eggy03.papertrail.bot.client.api.GuildApi;
+import io.github.eggy03.papertrail.bot.client.exception.ApiException;
 import io.github.eggy03.papertrail.bot.environment.PaperTrailEnvironment;
 import io.github.eggy03.papertrail.bot.service.EmbedCheckingService;
 import io.github.eggy03.papertrail.bot.utils.BooleanUtils;
 import io.github.eggy03.papertrail.bot.utils.auditlog.OnboardingUtils;
-import io.github.eggy03.papertrail.http.client.PaperTrailGuildClient;
-import io.github.eggy03.papertrail.http.entity.PaperTrailGuild;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NonNull;
@@ -16,6 +17,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 @ApplicationScoped
@@ -23,22 +25,26 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("java:S1192")
 public final class OnboardingActionTypeHandler extends AbstractGuildAuditLogEntryCreateEventActionTypeHandler {
 
-    private final @NonNull PaperTrailGuildClient client;
+    private final @NonNull GuildApi guildApi;
     private final @NonNull PaperTrailEnvironment environment;
     private final @NonNull EmbedCheckingService embedCheckingService;
 
     @Inject
-    public OnboardingActionTypeHandler(@NonNull PaperTrailGuildClient client, @NonNull PaperTrailEnvironment environment, @NonNull EmbedCheckingService embedCheckingService) {
-        this.client = client;
+    public OnboardingActionTypeHandler(@NonNull @RestClient GuildApi guildApi, @NonNull PaperTrailEnvironment environment, @NonNull EmbedCheckingService embedCheckingService) {
+        this.guildApi = guildApi;
         this.environment = environment;
         this.embedCheckingService = embedCheckingService;
     }
 
     @Nullable
-    private String getRegisteredChannelId(@NonNull String guildId) {
-        return client.getGuild(guildId)
-                .map(PaperTrailGuild::guildEventChannelId)
-                .orElse(null);
+    private Long getRegisteredChannelId(@NonNull Long guildId) {
+        try {
+            return guildApi.getGuild(guildId).guildEventChannelId();
+        } catch (ApiException e) {
+            if (e.getStatusCode() >= 500)
+                log.warn("API Error while attempting to fetch Guild", e);
+            return null;
+        }
 
     }
 
@@ -47,7 +53,7 @@ public final class OnboardingActionTypeHandler extends AbstractGuildAuditLogEntr
     public void onOnboardingCreate(@NonNull GuildAuditLogEntryCreateEvent event) {
         log.warn("Onboarding Create Event Detected. Implement this sometime later\n{}", event.getEntry().getChanges());
 
-        String channelIdToSendTo = getRegisteredChannelId(event.getGuild().getId());
+        Long channelIdToSendTo = getRegisteredChannelId(event.getGuild().getIdLong());
         if (channelIdToSendTo == null) return;
 
         AuditLogEntry ale = event.getEntry();
@@ -70,7 +76,7 @@ public final class OnboardingActionTypeHandler extends AbstractGuildAuditLogEntr
 
     @Override
     public void onOnboardingUpdate(@NonNull GuildAuditLogEntryCreateEvent event) {
-        String channelIdToSendTo = getRegisteredChannelId(event.getGuild().getId());
+        Long channelIdToSendTo = getRegisteredChannelId(event.getGuild().getIdLong());
         if (channelIdToSendTo == null) return;
 
         AuditLogEntry ale = event.getEntry();

@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.events.message.GenericMessageEvent;
 @Slf4j
 public final class EmbedCheckingService {
 
-    public void checkAndSend(@NonNull GenericGuildEvent event, @NonNull EmbedBuilder embedBuilder, @NonNull String channelIdToSendTo) {
+    public void checkAndSend(@NonNull GenericGuildEvent event, @NonNull EmbedBuilder embedBuilder, @NonNull Long channelIdToSendTo) {
         if (!embedBuilder.isValidLength() || embedBuilder.isEmpty()) {
             log.warn("Embed is empty or too long (current length: {}).", embedBuilder.length());
             return;
@@ -24,7 +24,7 @@ public final class EmbedCheckingService {
         }
     }
 
-    public void checkAndSend(@NonNull GenericMessageEvent event, @NonNull EmbedBuilder embedBuilder, @NonNull String channelIdToSendTo) {
+    public void checkAndSend(@NonNull GenericMessageEvent event, @NonNull EmbedBuilder embedBuilder, @NonNull Long channelIdToSendTo) {
         if (!embedBuilder.isValidLength() || embedBuilder.isEmpty()) {
             log.warn("Embed containing message is empty or too long (current length: {}).", embedBuilder.length());
             return;
