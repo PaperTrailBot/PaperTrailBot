@@ -1,78 +1,122 @@
-<div align="center">
-  <img
-    src="icon/halloween/logo_diamond_halloween.png"
-    alt="logo_diamond"
-    width="186"
-    height="186"
-  />
-
-<h2>PaperTrailBot</h2>
-<h4>This logo is drawn using MS Paint because I have never tried using a logo maker before</h4>
-</div>
-
-# Table of Contents
-
-* [Overview](#overview)
-* [Repositories](#repositories)
-* [Using The Bot](#using-the-bot)
-* [License](#license)
-* [Help](#help)
-
-# Overview
-
-A free and open-source Discord bot that logs the changes made to a server and it's members and logs them to a dedicated
-channel.
-
-The following is a non-exhaustive list of events that the bot can log:
-
-AutoMod Events, Onboarding Events,
-Invites, Members, Roles, Channels, Threads, Stages, Events, Polls, Messages, Boosts, Emojis, Stickers, Soundboard,
-Integrations, Webhooks, Moderation Action, Unusual DMs, Raids and Unknown events.
-
-# Repositories
-
-| Repository                                                                 | Description                                                  |
-|----------------------------------------------------------------------------|--------------------------------------------------------------|
-| [PaperTrailBot](https://github.com/eggy03/PaperTrailBot)                   | Core bot application                                         |
-| [PaperTrail HTTP Client](https://github.com/eggy03/PaperTrail-HTTP-Client) | Synchronous Java client library for interacting with the API |
-| [PaperTrail API](https://github.com/eggy03/PaperTrail-API-Quarkus)         | API used by the bot to store server config                   |
+# Deployment guide for the bot
 
 > [!IMPORTANT]
-> I've considered putting the project in maintenance mode since I believe it's mostly feature complete.
-> I don't plan on introducing or changing anything major.
-> However, I will be regularly updating it to fix reported/detected issues, updating dependencies and log new events or
-event keys if found, for as long as I can.
+>
+> This guide assumes you already have a working PostgreSQL and Redis/Valkey instance or know how to set up one.
 
-# Using The Bot
+## Step 1: Create a bot in the Discord Dev Portal
 
-### By Inviting It
+Log on to the [Discord Developer Portal](https://discord.com/developers/applications) and create an application.
 
-A deployed instance is the easiest way to use this bot. Just invite it to your server and that's all.
+The application can have any name, avatar, banner and description but the following scopes, permissions and intents are
+needed for it to work properly:
 
-Get it from here: https://discord.com/discovery/applications/1381658412550590475
+**Installation Contexts**
 
-Run the `/help` slash command to see instructions on how to configure the bot for your server.
+1) Guild Install
 
-### By Self Hosting It
+**Scopes**
 
-Read the deployment guide [here](/DEPLOYMENT.md)
+1) applications.commands
+2) bot
 
-# License
+**Permissions**
 
-This project is licensed under the [AGPLv3](/LICENSE) license.
+1) Manage Server
+2) Read Message History
+3) Send Messages
+4) Send Messages In Threads
+5) View Audit Log
+6) View Channels
 
-# AI Usage Policy
+**Privileged Gateway Intents**
 
-While my code quality is questionable at best and qualifies as slop, no AI/LLM agents have been used to generate any
-part of the code. This is my first bot and I wanted to write every part of the code by myself. This will also apply to
-future updates as well.
+1) Presence Intent
+2) Server Members Intent
+3) Message Content Intent
 
-That being said, I did use AI to proofread the Privacy Policy, Security and Terms documents and help maintain a formal
-tone because turns out, I really do a bad job at writing in formal tone. I also used it for generating commit messages
-sometimes, especially during early stages of development and when I did not know how to write helpful commit messages (I
-think I still don't know).
+Note down the `BOT TOKEN` since it will be shown only once and will be required in the later steps.
 
-# Help
+## Step 2: Deploying the API and the Bot
 
-If you face any problems during self-hosting or have a question that needs to be answered, please feel free to
-open an issue in the Issues tab. I will try my best to respond as soon as I can.
+### 2.1: Get Required Variables
+
+| Variable      | Description/Format                                                   | Default Value    | Optional |
+|---------------|----------------------------------------------------------------------|------------------|----------|
+| `DB_URL`      | jdbc:postgresql://<DATABASE_HOST>:<DATABASE_PORT>/<DATABASE_NAME>    | No Default Value | No       |
+| `DB_USERNAME` | Database Username                                                    | No Default Value | No       |
+| `DB_PASSWORD` | Database Password                                                    | No Default Value | No       |
+| `REDIS_URL`   | rediss://<REDIS_USERNAME>:<REDIS_PASSWORD>@<REDIS_HOST>:<REDIS_PORT> | No Default Value | No       |
+| `TOKEN`       | Get from the dev portal                                              | No Default Value | No       |
+
+### 2.2: Deployment
+
+Use the following docker compose setup to deploy both the bot and the API
+
+```yaml
+networks:
+  papertrail-network:
+
+services:
+  api:
+    container_name: papertrail-api
+    image: ghcr.io/papertrailbot/api-native:latest
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+    networks:
+      - papertrail-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/q/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  bot:
+    container_name: papertrail-bot
+    image: ghcr.io/papertrailbot/bot-native:latest
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      TOKEN: ${TOKEN}
+      API_URL: http://papertrail-api:8080
+    networks:
+      - papertrail-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/q/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+```
+
+If you want to build from source and then deploy individually,
+you can point your builder to this [and the API] repository's
+[Dockerfile](/Dockerfile) or [Dockerfile Native (GraalVM Native Image)](/Dockerfile.native).
+
+# Customization Options
+
+The following environment variables have defaults, but you can change them to allow for more customization:
+
+## Bot
+
+| Environment Variable          | Description                                                | Default Value            | Optional |
+|-------------------------------|------------------------------------------------------------|--------------------------|----------|
+| `APP_NAME`                    | Changes the application name used internally.              | `PaperTrailBot`          | Yes      |
+| `APP_ACTIVITY`                | Changes the activity displayed by the bot in Discord.      | `/help <latest_version>` | Yes      |
+| `APP_LOG_LEVEL`               | Changes the application log level.                         | `INFO`                   | Yes      |
+| `PORT`                        | Changes the port used by the application.                  | `8080`                   | Yes      |
+| `MANAGEMENT_PORT`             | Changes the management port used by Quarkus health checks. | `9000`                   | Yes      |
+| `EMBED_SUCCESS_COLOR_INT`     | Changes the color of embeds for **creation events**.       | `GREEN (712458)`         | Yes      |
+| `EMBED_WARNING_COLOR_INT`     | Changes the color of embeds for **update events**.         | `YELLOW (16776960)`      | Yes      |
+| `EMBED_DESTRUCTIVE_COLOR_INT` | Changes the color of embeds for **deletion events**.       | `RED (16711680)`         | Yes      |
+
+## API
+
+| Environment Variable | Description                                                | Default Value | Optional |
+|----------------------|------------------------------------------------------------|---------------|----------|
+| `LOG_LEVEL`          | Changes the application log level.                         | `INFO`        | Yes      |
+| `PORT`               | Changes the port used by the application.                  | `8080`        | Yes      |
+| `MANAGEMENT_PORT`    | Changes the management port used by Quarkus health checks. | `9000`        | Yes      |
