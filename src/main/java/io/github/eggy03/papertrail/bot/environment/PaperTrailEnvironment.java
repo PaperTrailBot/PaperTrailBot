@@ -12,8 +12,6 @@ public interface PaperTrailEnvironment {
     EmbedColor embedColor();
     Discord discord();
 
-    API api();
-
     interface General {
 
         @WithName("app.name")
@@ -51,13 +49,6 @@ public interface PaperTrailEnvironment {
         @WithName("token")
         @NonNull
         String token();
-    }
-
-    interface API {
-
-        @WithName("url")
-        @NonNull
-        String url();
     }
 
 }

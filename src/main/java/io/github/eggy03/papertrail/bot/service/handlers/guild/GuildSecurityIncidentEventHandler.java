@@ -1,10 +1,11 @@
 package io.github.eggy03.papertrail.bot.service.handlers.guild;
 
+import io.github.eggy03.papertrail.bot.client.api.GuildApi;
+import io.github.eggy03.papertrail.bot.client.exception.ApiException;
 import io.github.eggy03.papertrail.bot.environment.PaperTrailEnvironment;
 import io.github.eggy03.papertrail.bot.service.EmbedCheckingService;
 import io.github.eggy03.papertrail.bot.utils.DurationUtils;
-import io.github.eggy03.papertrail.http.client.PaperTrailGuildClient;
-import io.github.eggy03.papertrail.http.entity.PaperTrailGuild;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NonNull;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.entities.guild.SecurityIncidentDetections;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateSecurityIncidentActionsEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateSecurityIncidentDetectionsEvent;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
@@ -24,27 +26,30 @@ import java.time.OffsetDateTime;
 @Slf4j
 public final class GuildSecurityIncidentEventHandler {
 
-    private final @NonNull PaperTrailGuildClient client;
+    private final @NonNull GuildApi guildApi;
     private final @NonNull PaperTrailEnvironment environment;
     private final @NonNull EmbedCheckingService embedCheckingService;
 
     @Inject
-    public GuildSecurityIncidentEventHandler(@NonNull PaperTrailGuildClient client, @NonNull PaperTrailEnvironment environment, @NonNull EmbedCheckingService embedCheckingService) {
-        this.client = client;
+    public GuildSecurityIncidentEventHandler(@NonNull @RestClient GuildApi guildApi, @NonNull PaperTrailEnvironment environment, @NonNull EmbedCheckingService embedCheckingService) {
+        this.guildApi = guildApi;
         this.environment = environment;
         this.embedCheckingService = embedCheckingService;
     }
 
     @Nullable
-    private String getRegisteredChannelId(@NonNull String guildId) {
-        return client.getGuild(guildId)
-                .map(PaperTrailGuild::guildEventChannelId)
-                .orElse(null);
-
+    private Long getRegisteredChannelId(@NonNull Long guildId) {
+        try {
+            return guildApi.getGuild(guildId).guildEventChannelId();
+        } catch (ApiException e) {
+            if (e.getStatusCode() >= 500)
+                log.warn("API Error while attempting to fetch Guild", e);
+            return null;
+        }
     }
 
     public void handleGuildUpdateSecurityIncidentDetections(@NonNull GuildUpdateSecurityIncidentDetectionsEvent event) {
-        String channelIdToSendTo = getRegisteredChannelId(event.getGuild().getId());
+        Long channelIdToSendTo = getRegisteredChannelId(event.getGuild().getIdLong());
         if (channelIdToSendTo == null) return;
 
         SecurityIncidentDetections oldSID = event.getOldSecurityIncidentDetections();
@@ -106,7 +111,7 @@ public final class GuildSecurityIncidentEventHandler {
     }
 
     public void handleGuildUpdateSecurityIncidentActions(@NonNull GuildUpdateSecurityIncidentActionsEvent event) {
-        String channelIdToSendTo = getRegisteredChannelId(event.getGuild().getId());
+        Long channelIdToSendTo = getRegisteredChannelId(event.getGuild().getIdLong());
         if (channelIdToSendTo == null) return;
 
         SecurityIncidentActions oldSIA = event.getOldSecurityIncidentActions();

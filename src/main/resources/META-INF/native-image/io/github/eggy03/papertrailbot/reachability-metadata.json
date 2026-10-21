@@ -1,38 +1,6 @@
 {
   "reflection": [
     {
-      "type": "io.github.eggy03.papertrail.http.client.PaperTrailGuildClient"
-    },
-    {
-      "type": "io.github.eggy03.papertrail.http.client.PaperTrailMessageClient"
-    },
-    {
-      "type": "io.github.eggy03.papertrail.http.entity.PaperTrailGuild",
-      "allDeclaredConstructors": true,
-      "allDeclaredFields": true,
-      "allDeclaredMethods": true
-    },
-    {
-      "type": "io.github.eggy03.papertrail.http.entity.PaperTrailMessage",
-      "allDeclaredConstructors": true,
-      "allDeclaredFields": true,
-      "allDeclaredMethods": true
-    },
-    {
-      "type": {
-        "proxy": [
-          "io.github.eggy03.papertrail.http.service.PaperTrailGuildService"
-        ]
-      }
-    },
-    {
-      "type": {
-        "proxy": [
-          "io.github.eggy03.papertrail.http.service.PaperTrailMessageService"
-        ]
-      }
-    },
-    {
       "type": "net.dv8tion.jda.api.JDA[]"
     },
     {

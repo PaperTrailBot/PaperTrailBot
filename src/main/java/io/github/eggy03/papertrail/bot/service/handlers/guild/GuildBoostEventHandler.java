@@ -1,9 +1,10 @@
 package io.github.eggy03.papertrail.bot.service.handlers.guild;
 
+import io.github.eggy03.papertrail.bot.client.api.GuildApi;
+import io.github.eggy03.papertrail.bot.client.exception.ApiException;
 import io.github.eggy03.papertrail.bot.environment.PaperTrailEnvironment;
 import io.github.eggy03.papertrail.bot.service.EmbedCheckingService;
-import io.github.eggy03.papertrail.http.client.PaperTrailGuildClient;
-import io.github.eggy03.papertrail.http.entity.PaperTrailGuild;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.NonNull;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTime
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostCountEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostTierEvent;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
@@ -24,27 +26,31 @@ import java.time.OffsetDateTime;
 @Slf4j
 public final class GuildBoostEventHandler {
 
-    private final @NonNull PaperTrailGuildClient client;
+    private final @NonNull GuildApi guildApi;
     private final @NonNull PaperTrailEnvironment environment;
     private final @NonNull EmbedCheckingService embedCheckingService;
 
     @Inject
-    public GuildBoostEventHandler(@NonNull PaperTrailGuildClient client, @NonNull PaperTrailEnvironment environment, @NonNull EmbedCheckingService embedCheckingService) {
-        this.client = client;
+    public GuildBoostEventHandler(@NonNull @RestClient GuildApi guildApi, @NonNull PaperTrailEnvironment environment, @NonNull EmbedCheckingService embedCheckingService) {
+        this.guildApi = guildApi;
         this.environment = environment;
         this.embedCheckingService = embedCheckingService;
     }
 
     @Nullable
-    private String getRegisteredChannelId(@NonNull String guildId) {
-        return client.getGuild(guildId)
-                .map(PaperTrailGuild::guildEventChannelId)
-                .orElse(null);
+    private Long getRegisteredChannelId(@NonNull Long guildId) {
+        try {
+            return guildApi.getGuild(guildId).guildEventChannelId();
+        } catch (ApiException e) {
+            if (e.getStatusCode() >= 500)
+                log.warn("API Error while attempting to fetch Guild", e);
+            return null;
+        }
 
     }
 
     public void handleUpdateBoostTier(@NonNull GuildUpdateBoostTierEvent event) {
-        String channelIdToSendTo = getRegisteredChannelId(event.getGuild().getId());
+        Long channelIdToSendTo = getRegisteredChannelId(event.getGuild().getIdLong());
         if (channelIdToSendTo == null) return;
 
         Guild guild = event.getGuild();
@@ -78,7 +84,7 @@ public final class GuildBoostEventHandler {
     }
 
     public void handleUpdateBoostCount(@NonNull GuildUpdateBoostCountEvent event) {
-        String channelIdToSendTo = getRegisteredChannelId(event.getGuild().getId());
+        Long channelIdToSendTo = getRegisteredChannelId(event.getGuild().getIdLong());
         if (channelIdToSendTo == null) return;
 
         Guild guild = event.getGuild();
@@ -99,7 +105,7 @@ public final class GuildBoostEventHandler {
     }
 
     public void handleMemberUpdateBoostTime(@NonNull GuildMemberUpdateBoostTimeEvent event) {
-        String channelIdToSendTo = getRegisteredChannelId(event.getGuild().getId());
+        Long channelIdToSendTo = getRegisteredChannelId(event.getGuild().getIdLong());
         if (channelIdToSendTo == null) return;
 
         Member member = event.getMember();
