@@ -7,14 +7,17 @@ What problem does it solve? What does it add or improve?
 
 ## **Type of Change**
 
-Keep all that apply:
+### Bug fix
 
-- Bug fix
-- New feature
-- Documentation update
-- Refactor
-- Tests
-- Other (please describe):
+### New feature
+
+### Documentation update
+
+### Refactor
+
+### Tests
+
+### Other (please describe):
 
 ---
 
