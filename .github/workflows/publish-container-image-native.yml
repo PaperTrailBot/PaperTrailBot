@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: eggy03/papertrail-bot-native
+  IMAGE_NAME: papertrailbot/bot-native
 
 jobs:
   build:
