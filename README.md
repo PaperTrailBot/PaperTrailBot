@@ -31,9 +31,8 @@ needed for it to work properly:
 
 **Privileged Gateway Intents**
 
-1) Presence Intent
-2) Server Members Intent
-3) Message Content Intent
+1) Server Members Intent
+2) Message Content Intent
 
 Note down the `BOT TOKEN` since it will be shown only once and will be required in the later steps.
 
