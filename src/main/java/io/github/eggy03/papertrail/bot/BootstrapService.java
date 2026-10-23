@@ -39,27 +39,30 @@ public final class BootstrapService {
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(paperTrailEnvironment.discord().token());
 
-        builder.enableIntents(GatewayIntent.SCHEDULED_EVENTS,
+        builder.enableIntents(
+                GatewayIntent.SCHEDULED_EVENTS,
                 GatewayIntent.AUTO_MODERATION_EXECUTION,
                 GatewayIntent.AUTO_MODERATION_CONFIGURATION,
-                GatewayIntent.MESSAGE_CONTENT,
-                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.MESSAGE_CONTENT, // priv
+                GatewayIntent.GUILD_MEMBERS, // priv
+                GatewayIntent.GUILD_MODERATION,
                 GatewayIntent.GUILD_EXPRESSIONS,
-                GatewayIntent.GUILD_PRESENCES,
-                GatewayIntent.GUILD_MODERATION
+                GatewayIntent.GUILD_WEBHOOKS,
+                GatewayIntent.GUILD_INVITES,
+                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.SCHEDULED_EVENTS
         );
 
         //cache all members
         builder.setMemberCachePolicy(MemberCachePolicy.ALL);
-        // cache all activities
-        builder.enableCache(CacheFlag.ACTIVITY,
-                CacheFlag.CLIENT_STATUS,
-                CacheFlag.EMOJI,
-                CacheFlag.STICKER,
-                CacheFlag.ONLINE_STATUS,
+
+        builder.enableCache(
                 CacheFlag.MEMBER_OVERRIDES,
                 CacheFlag.ROLE_TAGS,
-                CacheFlag.SCHEDULED_EVENTS
+                CacheFlag.FORUM_TAGS,
+                CacheFlag.SCHEDULED_EVENTS,
+                CacheFlag.VOICE_STATE
         );
         // chunk all guilds
         builder.setChunkingFilter(ChunkingFilter.ALL);

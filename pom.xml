@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.eggy03</groupId>
     <artifactId>papertrailbot</artifactId>
-    <version>5.1.1</version>
+    <version>5.1.2</version>
     <name>PaperTrail Bot</name>
     <description>A simple bot for logging all server and member actions</description>
     <packaging>quarkus</packaging>
@@ -18,7 +18,7 @@
         <!-- Quarkus Properties -->
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.40.1</quarkus.platform.version>
+        <quarkus.platform.version>3.40.1.1</quarkus.platform.version>
         <skipITs>true</skipITs>
 
         <!-- Dependency Versions -->
